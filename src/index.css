@@ -1,0 +1,10 @@
+html,
+body {
+  background: #1D1F21;
+}
+
+circle {
+  fill: #ccc;
+  stroke: #000;
+  stroke-width: 1px;
+}
