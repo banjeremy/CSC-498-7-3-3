@@ -10,6 +10,13 @@ h1 {
 button {
   opacity: 0.6;
   margin: 2px;
+  background: transparent;
+}
+
+button.active {
+  background: white;
+  color: rgb(12, 12, 12);
+  /* border-color: blue; */
 }
 
 circle {
@@ -21,3 +28,8 @@ circle {
   max-width: 650px;
   text-align: center;
 }
+
+/* .axis path {
+  color: #606c76;
+  fill: #606c76;
+} */

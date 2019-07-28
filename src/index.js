@@ -6,8 +6,48 @@ const margin = 25
 const width = 600 // window.innerWidth
 const height = 600 // window.innerHeight
 
-function draw(svg, data) {
-  if (!data) return
+function drawAxes(svg) {
+  const xScale = d3
+    .scaleLog()
+    .domain([10, 150])
+    .range([0, width])
+
+  const yScale = d3
+    .scaleLog()
+    .domain([10, 150])
+    .range([height, 0])
+
+  const xAxis = d3
+    .axisBottom(xScale)
+    .tickValues([10, 20, 50, 100])
+    .tickFormat(d3.format('~s'))
+
+  const yAxis = d3
+    .axisLeft(yScale)
+    .tickValues([10, 20, 50, 100])
+    .tickFormat(d3.format('~s'))
+
+  svg
+    .append('g')
+    .attr('class', 'axis y-axis')
+    .attr('transform', `translate(${margin},${margin})`)
+    .call(yAxis)
+
+  svg
+    .append('g')
+    .attr('class', 'axis x-axis')
+    .attr('transform', `translate(${margin},${height + margin})`)
+    .call(xAxis)
+
+  svg
+    .append('text')
+    .attr('transform', `translate(100,100)`)
+    .style('text-anchor', 'middle')
+    .text('Date')
+}
+
+function drawScene1(svg, data) {
+  if (!svg || !data) return
 
   // TODO: for debugging purposes. please remove
   window.data = data
@@ -35,16 +75,15 @@ function draw(svg, data) {
     .range([0, width / 2])
 
   const x = (d) =>
-    Math.cos((d.angle * Math.PI) / 180) * distanceScale(d.distance_from_sun) + width / 2
+    -Math.cos((d.angle * Math.PI) / 180) * distanceScale(d.distance_from_sun) + width / 2
 
   const y = (d) =>
     Math.sin((d.angle * Math.PI) / 180) * distanceScale(d.distance_from_sun) + height / 2
 
-  const planets = svg
-    .append('g')
-    .attr('transform', `translate(${margin}, ${margin})`)
-    .selectAll('circle')
-    .data(data)
+  svg.selectAll('circle').remove()
+  const planets = svg.selectAll('circle').data(data)
+
+  planets
     .enter()
     .append('circle')
     .attr('cx', width / 2)
@@ -55,21 +94,50 @@ function draw(svg, data) {
     .attr('angle', (d) => d.angle)
     .attr('r', (d) => sizeScale(d.radius))
     .attr('fill', (d) => colorScale(d.host_star_temperature))
+  planets.exit().remove()
+}
+
+function drawScene2(svg, data) {
+  if (!svg || !data) return
+  drawAxes(svg)
+}
+
+function drawScene3(svg, data) {
+  if (!svg || !data) return
+  drawAxes(svg)
+}
+
+function clearScene(svg, data) {
+  svg.selectAll('g.axis').remove()
+}
+
+function drawScene(svg, data, scene) {
+  clearScene(svg)
+  switch (scene) {
+    case 'scene1':
+      return drawScene1(svg, data)
+    case 'scene2':
+      return drawScene2(svg, data)
+    case 'scene3':
+      return drawScene3(svg, data)
+    default:
+      return drawScene1(svg, data)
+  }
 }
 
 function initControls(svg, data) {
-  const buttons = d3
-    .select('#controls')
-    .selectAll('button')
-    .data(['scene1', 'scene2', 'scene3'])
-
-  const jostle = () => {}
+  const controls = d3.select('#controls')
+  const buttons = controls.selectAll('button').data(['scene1', 'scene2', 'scene3'])
 
   buttons
     .enter()
     .append('button')
-    .on('click', (d) => jostle())
-    .html((d) => d)
+    .on('click', function handleClick(scene) {
+      controls.selectAll('button').classed('active', false)
+      d3.select(this).classed('active', true)
+      drawScene(svg, data, scene)
+    })
+    .html((scene) => scene)
 }
 
 function loadDataset() {
@@ -97,7 +165,7 @@ async function init() {
   data = data.filter((d) => d.distance_from_sun > 0)
 
   initControls(svg, data)
-  draw(svg, data)
+  drawScene(svg, data)
 }
 
 init()
