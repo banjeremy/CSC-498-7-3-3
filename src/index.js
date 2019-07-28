@@ -133,6 +133,18 @@ function drawScene1(svg, data) {
 function drawScene2(svg, data) {
   if (!svg || !data) return
   drawAxes(svg)
+
+  const xScale = d3
+    .scaleLinear()
+    .domain([0, d3.max(data, (d) => d.radius)])
+    .range([2, 6])
+
+  const planets = d3.selectAll('circle').data(data)
+
+  planets
+    .transition()
+    .attr('cx', 0)
+    .attr('cy', 0)
 }
 
 function drawScene3(svg, data) {

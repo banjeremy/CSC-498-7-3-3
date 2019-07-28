@@ -40,6 +40,8 @@ circle:hover {
   border: 1px solid rgb(155, 77, 202);
   border-radius: 0.4rem;
   padding: 20px;
+  min-width: 200px;
+  min-height: 150px;
 }
 
 .tooltip .name {
