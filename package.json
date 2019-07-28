@@ -33,7 +33,8 @@
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",
-    "d3": "^5.9.7"
+    "d3": "^5.9.7",
+    "d3-svg-annotation": "^2.5.0"
   },
   "browserslist": [
     "defaults"

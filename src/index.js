@@ -6,6 +6,30 @@ const margin = 25
 const width = 600 // window.innerWidth
 const height = 600 // window.innerHeight
 
+const tooltip = d3
+  .select('body')
+  .append('div')
+  .style('position', 'absolute')
+  .style('z-index', '10')
+  .style('visibility', 'hidden')
+
+const tooltipContent = (d) => {
+  return `
+  <div class="tooltip">
+    <h1 class="name">${d.id}</h1>
+    <ul class="attributes">
+      <li class="attribute"><strong>Distance</strong> ${d.distance_from_sun} pc</li>
+      <li class="attribute"><strong>Radius</strong> ${d.radius} R<sub>Jup</<sub></li>
+      ${
+        d.planetary_mass
+          ? `<li class="attribute"><strong>Mass</strong> ${d.planetary_mass} M<sub>Jup</sub></li>`
+          : ''
+      }
+    </ul>
+  </div>
+  `
+}
+
 function drawAxes(svg) {
   const xScale = d3
     .scaleLog()
@@ -65,7 +89,7 @@ function drawScene1(svg, data) {
   const sizeScale = d3
     .scaleLinear()
     .domain([0, d3.max(data, (d) => d.radius)])
-    .range([1, 5])
+    .range([2, 6])
 
   // angle is right_ascension converted to degrees
   // distance from center maps to distance from the sun
@@ -88,12 +112,21 @@ function drawScene1(svg, data) {
     .append('circle')
     .attr('cx', width / 2)
     .attr('cy', height / 2)
+    .on('mouseover', () => tooltip.style('visibility', 'visible'))
+    .on('mousemove', (d) =>
+      tooltip
+        .style('top', `${event.pageY - 10}px`)
+        .style('left', `${event.pageX + 10}px`)
+        .html(tooltipContent(d)),
+    )
+    .on('mouseout', () => tooltip.style('visibility', 'hidden'))
     .transition()
     .attr('cx', (d) => x(d))
     .attr('cy', (d) => y(d))
     .attr('angle', (d) => d.angle)
     .attr('r', (d) => sizeScale(d.radius))
     .attr('fill', (d) => colorScale(d.host_star_temperature))
+
   planets.exit().remove()
 }
 

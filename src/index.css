@@ -16,11 +16,17 @@ button {
 button.active {
   background: white;
   color: rgb(12, 12, 12);
-  /* border-color: blue; */
 }
 
 circle {
   opacity: 0.6;
+}
+
+circle:hover {
+  stroke: rgb(155, 77, 202);
+  stroke-width: 2px;
+  opacity: 1;
+  z-index: 10;
 }
 
 #container {
@@ -29,7 +35,28 @@ circle {
   text-align: center;
 }
 
-/* .axis path {
-  color: #606c76;
-  fill: #606c76;
-} */
+.tooltip {
+  background: rgb(12, 12, 12);
+  border: 1px solid rgb(155, 77, 202);
+  border-radius: 0.4rem;
+  padding: 20px;
+}
+
+.tooltip .name {
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+}
+
+.tooltip .attributes {
+  font-size: 14px;
+  color: white;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tooltip .attributes .attribute {
+  margin: 0;
+  padding: 0;
+}
