@@ -13,12 +13,14 @@ const tooltip = d3
   .style('z-index', '10')
   .style('visibility', 'hidden')
 
+const formatter = (x) => x && x.toLocaleString('en-US')
+
 const tooltipContent = (d) => {
   return `
   <div class="tooltip">
     <h1 class="name">${d.id}</h1>
     <ul class="attributes">
-      <li class="attribute"><strong>Distance</strong> ${d.distance_from_sun} pc</li>
+      <li class="attribute"><strong>Distance</strong> ${formatter(d.distance_from_sun)} ly</li>
       <li class="attribute"><strong>Radius</strong> ${d.radius} R<sub>Jup</<sub></li>
       <li class="attribute"><strong>Discovery Year</strong> ${d.discovery_year}</li>
 
@@ -62,7 +64,8 @@ function drawScene1(svg, data) {
   const y = (d) =>
     Math.sin((d.angle * Math.PI) / 180) * distanceScale(d.distance_from_sun) + height / 2
 
-  const planets = svg.selectAll('circle').data(data)
+  const container = d3.select('g.container')
+  const planets = container.selectAll('circle').data(data)
 
   planets
     .enter()
@@ -121,16 +124,16 @@ function drawScene2(svg, data) {
 
   const yScale = d3
     .scaleLog()
-    .domain([d3.min(data, (d) => d.distance_from_sun), d3.max(data, (d) => d.distance_from_sun)])
+    .domain([8, d3.max(data, (d) => d.distance_from_sun)])
     .range([height, 0])
 
   const xAxis = d3.axisBottom().scale(xScale)
-  const yAxis = d3.axisLeft(yScale)
+  const yAxis = d3.axisLeft(yScale).ticks(10, '.2s')
 
   svg
     .append('g')
     .attr('class', 'axis y-axis')
-    .attr('transform', `translate(${margin},${margin})`)
+    .attr('transform', `translate(${margin + 10},${margin})`)
     .call(yAxis)
 
   svg
@@ -139,17 +142,18 @@ function drawScene2(svg, data) {
     .attr('transform', `translate(${margin},${height + margin})`)
     .call(xAxis)
 
-  svg
-    .append('text')
-    .attr('transform', `translate(100,100)`)
-    .style('text-anchor', 'middle')
-    .text('Date')
+  // svg
+  //   .append('text')
+  //   .attr('transform', `translate(100,100)`)
+  //   .style('text-anchor', 'middle')
+  //   .text('Date')
 
-  const planets = svg.selectAll('circle').data(data)
+  const container = svg.select('g.container')
+  const planets = container.selectAll('circle').data(data)
 
   planets
     .transition()
-    .attr('cx', (d) => xScale(d.discovery_year) + margin + xScale.bandwidth() / 2)
+    .attr('cx', (d) => xScale(d.discovery_year) + xScale.bandwidth() / 2)
     .attr('cy', (d) => yScale(d.distance_from_sun))
 }
 
@@ -198,11 +202,25 @@ function loadDataset() {
     const [hours, minutes, seconds] = row.right_ascension.split(' ').map(parseFloat)
     const angle = (hours + minutes / 60 + seconds / 3600 || 0) * 15
 
+    const mapCategory = (row) => {
+      const lists = row.lists.toLowerCase()
+      if (lists.indexOf('confirmed') >= 0) {
+        return 'confirmed'
+      }
+      if (lists.indexOf('controversal') >= 0) {
+        return 'controversal'
+      }
+      if (lists.indexOf('retracted') >= 0) {
+        return 'retracted'
+      }
+    }
+
     return {
       ...row,
       radius: +row.radius,
       host_star_temperature: +row.host_star_temperature,
-      distance_from_sun: +row.distance_from_sun,
+      distance_from_sun: +row.distance_from_sun * 3.262, // parsecs -> light years
+      category: mapCategory(row),
       angle,
     }
   })
@@ -213,6 +231,11 @@ async function init() {
     .select('svg')
     .attr('width', width + 2 * margin)
     .attr('height', height + 2 * margin)
+
+  const container = svg
+    .append('g')
+    .classed('container', true)
+    .attr('transform', `translate(${margin},${margin})`)
 
   let data = await loadDataset()
   data = data.filter(
