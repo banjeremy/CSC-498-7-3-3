@@ -6,6 +6,8 @@ const margin = 25
 const width = 600 // window.innerWidth
 const height = 600 // window.innerHeight
 
+const categories = ['confirmed', 'controversial', 'retracted']
+
 const tooltip = d3
   .select('body')
   .append('div')
@@ -37,13 +39,7 @@ const tooltipContent = (d) => {
 function drawScene1(svg, data) {
   if (!svg || !data) return
 
-  // color maps to temperature
-  const colorScale = d3
-    .scaleSequential(d3.interpolateRdYlBu)
-    .domain([
-      d3.min(data, (d) => d.host_star_temperature),
-      d3.max(data, (d) => d.host_star_temperature),
-    ])
+  const colorScale = d3.scaleOrdinal(d3.schemeCategory10)
 
   // circle size maps to planet size
   const sizeScale = d3
@@ -86,7 +82,7 @@ function drawScene1(svg, data) {
     .attr('cy', (d) => y(d))
     .attr('angle', (d) => d.angle)
     .attr('r', (d) => sizeScale(d.radius))
-    .attr('fill', (d) => colorScale(d.host_star_temperature))
+    .attr('fill', (d) => colorScale(d.category))
 
   planets.exit().remove()
 }
@@ -179,6 +175,39 @@ function drawScene(svg, data, scene) {
   }
 }
 
+function initLegend(svg) {
+  const colorScale = d3.scaleOrdinal(d3.schemeCategory10)
+
+  const legend = svg
+    .append('g')
+    .classed('legend', true)
+    .attr('transform', `translate(${width - margin}, ${0})`)
+
+  legend
+    .selectAll('rect')
+    .data(categories)
+    .enter()
+    .append('rect')
+    .attr('x', 100)
+    .attr('y', (d, i) => 92 + i * 25)
+    .attr('width', 14)
+    .attr('height', 14)
+    .attr('rx', '0.4rem')
+    .style('fill', (d) => colorScale(d))
+
+  legend
+    .selectAll('text')
+    .data(categories)
+    .enter()
+    .append('text')
+    .attr('x', 120)
+    .attr('y', (d, i) => 100 + i * 25)
+    // .style('fill', (d) => colorScale(d))
+    .text((d) => d)
+    .attr('text-anchor', 'left')
+    .style('alignment-baseline', 'middle')
+}
+
 function initControls(svg, data) {
   const controls = d3.select('#controls')
   const buttons = controls.selectAll('button').data(['scene1', 'scene2', 'scene3'])
@@ -204,14 +233,11 @@ function loadDataset() {
 
     const mapCategory = (row) => {
       const lists = row.lists.toLowerCase()
-      if (lists.indexOf('confirmed') >= 0) {
-        return 'confirmed'
-      }
-      if (lists.indexOf('controversal') >= 0) {
-        return 'controversal'
-      }
-      if (lists.indexOf('retracted') >= 0) {
-        return 'retracted'
+
+      for (let category of categories) {
+        if (lists.includes(category)) {
+          return category
+        }
       }
     }
 
@@ -247,6 +273,7 @@ async function init() {
   window.d3 = d3
 
   initControls(svg, data)
+  initLegend(svg, [])
   drawScene(svg, data)
 }
 
