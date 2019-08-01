@@ -3,6 +3,10 @@ body {
   background-color: rgb(12, 12, 12);
 }
 
+svg {
+  overflow: visible;
+}
+
 h1 {
   color: rgba(255, 255, 255, 0.6);
 }
@@ -14,8 +18,8 @@ button {
 }
 
 button.active {
-  background: white;
-  color: rgb(12, 12, 12);
+  background: #999;
+  color: #000;
 }
 
 circle {
@@ -35,11 +39,22 @@ circle:hover {
   text-align: center;
 }
 
+.legend {
+  opacity: 0.6;
+}
+
+.legend text {
+  fill: #999;
+  font-size: 14px;
+}
+
 .tooltip {
-  background: rgb(12, 12, 12);
+  background: rgba(12, 12, 12, 0.85);
   border: 1px solid rgb(155, 77, 202);
   border-radius: 0.4rem;
   padding: 20px;
+  min-width: 200px;
+  min-height: 150px;
 }
 
 .tooltip .name {
