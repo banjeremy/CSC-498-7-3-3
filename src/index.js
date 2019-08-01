@@ -6,6 +6,8 @@ const margin = 25
 const width = 600 // window.innerWidth
 const height = 600 // window.innerHeight
 
+let force
+
 const categories = ['confirmed', 'controversial', 'retracted']
 
 const tooltip = d3
@@ -90,27 +92,10 @@ function drawScene1(svg, data) {
 function drawScene2(svg, data) {
   if (!svg || !data) return
 
-  const years = [
-    '2000',
-    '2001',
-    '2002',
-    '2003',
-    '2004',
-    '2005',
-    '2006',
-    '2007',
-    '2008',
-    '2009',
-    '2010',
-    '2011',
-    '2012',
-    '2013',
-    '2014',
-    '2015',
-    '2016',
-    '2017',
-    '2018',
-  ]
+  let years = []
+  for (let i = 2000; i <= 2018; i++) {
+    years.push(String(i))
+  }
 
   const xScale = d3
     .scaleBand()
@@ -155,10 +140,54 @@ function drawScene2(svg, data) {
 
 function drawScene3(svg, data) {
   if (!svg || !data) return
+
+  const container = svg.select('g.container')
+  const planets = container.selectAll('circle')
+
+  let nodes = []
+  planets.each(function(d) {
+    const el = d3.select(this)
+    nodes.push({
+      ...d,
+      category: d.category,
+      x: parseFloat(el.attr('cx')),
+      y: parseFloat(el.attr('cy')),
+    })
+  })
+
+  const clusters = categories.reduce(
+    (a, b, i) => ({ ...a, [b]: { x: 200 + 100 * i, y: 200 + 100 * i } }),
+    {},
+  )
+
+  function forceCluster(alpha) {
+    for (var i = 0, n = nodes.length, node, cluster, k = alpha * 1; i < n; ++i) {
+      node = nodes[i]
+      cluster = clusters[node.category]
+      node.vx -= (node.x - cluster.x) * k
+      node.vy -= (node.y - cluster.y) * k
+    }
+  }
+
+  force = d3
+    .forceSimulation()
+    .nodes(nodes)
+    .force('cluster', forceCluster)
+    .force('gravity', d3.forceManyBody(1))
+    .velocityDecay(0.7)
+    .on('tick', () =>
+      planets
+        .data(nodes)
+        .attr('cx', (d) => d.x)
+        .attr('cy', (d) => d.y),
+    )
+
+  force.restart()
 }
 
 function clearScene(svg, data) {
   svg.selectAll('g.axis').remove()
+  if (force) force.stop()
 }
 
 function drawScene(svg, data, scene) {
@@ -231,22 +260,12 @@ function loadDataset() {
     const [hours, minutes, seconds] = row.right_ascension.split(' ').map(parseFloat)
     const angle = (hours + minutes / 60 + seconds / 3600 || 0) * 15
 
-    const mapCategory = (row) => {
-      const lists = row.lists.toLowerCase()
-
-      for (let category of categories) {
-        if (lists.includes(category)) {
-          return category
-        }
-      }
-    }
-
     return {
       ...row,
       radius: +row.radius,
       host_star_temperature: +row.host_star_temperature,
       distance_from_sun: +row.distance_from_sun * 3.262, // parsecs -> light years
-      category: mapCategory(row),
+      category: categories.find((c) => row.lists.toLowerCase().includes(c)),
       angle,
     }
   })

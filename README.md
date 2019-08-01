@@ -35,3 +35,17 @@ Dataset is from the [Open Exoplanet Catalogue](https://github.com/hannorein/open
 
 
 Colors mapped to temperature of star: https://courses.lumenlearning.com/astronomy/chapter/colors-of-stars/
+
+
+## TODO: 
+
+add axis labels
+add forward, back buttons
+add annotations
+
+scene1
+
+scene2
+
+scene 3
+retracted planets are planets that...
