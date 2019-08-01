@@ -2,6 +2,8 @@ import 'babel-polyfill'
 import * as d3 from 'd3'
 import './index.css'
 
+import * as d3Annotation from 'd3-svg-annotation'
+
 const margin = 25
 const width = 600 // window.innerWidth
 const height = 600 // window.innerHeight
@@ -38,8 +40,75 @@ const tooltipContent = (d) => {
   `
 }
 
+const annotations = {
+  scene1: [
+    {
+      note: {
+        label: 'Earth is here',
+        bgPadding: 20,
+        title: 'Spacial view',
+      },
+      x: width / 2 + margin,
+      y: width / 2 + margin,
+      className: 'show-bg',
+      dy: 200,
+      dx: 300,
+    },
+  ],
+  scene2: [
+    {
+      note: {
+        label: 'Large number of distant planets discovered',
+        bgPadding: 20,
+        title: '2014',
+      },
+      x: 480,
+      y: 200,
+      className: 'show-bg',
+      dy: 80,
+      dx: -600,
+    },
+  ],
+  scene3: [
+    {
+      note: {
+        label: 'A small number of exoplantets were retracted',
+        bgPadding: 20,
+        title: 'Not planets',
+      },
+      x: 500,
+      y: 480,
+      className: 'show-bg',
+      dy: -100,
+      dx: 200,
+    },
+  ],
+}
+
+function drawAnnotation(scene) {
+  if (!(scene in annotations)) return
+  const makeAnnotations = d3Annotation
+    .annotation()
+    .notePadding(15)
+    .type(d3Annotation.annotationLabel)
+    .annotations(annotations[scene])
+
+  d3.select('svg')
+    .append('g')
+    .attr('class', 'annotation-group')
+    .call(makeAnnotations)
+}
+
 function drawScene1(svg, data) {
   if (!svg || !data) return
+
+  svg
+    .append('circle')
+    .classed('sun', true)
+    .attr('r', 8)
+    .attr('cx', width / 2 + margin)
+    .attr('cy', height / 2 + margin)
+    .attr('fill', 'yellow')
 
   const colorScale = d3.scaleOrdinal(d3.schemeCategory10)
 
@@ -87,6 +156,8 @@ function drawScene1(svg, data) {
     .attr('fill', (d) => colorScale(d.category))
 
   planets.exit().remove()
+
+  drawAnnotation('scene1')
 }
 
 function drawScene2(svg, data) {
@@ -136,6 +207,8 @@ function drawScene2(svg, data) {
     .transition()
     .attr('cx', (d) => xScale(d.discovery_year) + xScale.bandwidth() / 2)
     .attr('cy', (d) => yScale(d.distance_from_sun))
+
+  drawAnnotation('scene2')
 }
 
 function drawScene3(svg, data) {
@@ -161,7 +234,7 @@ function drawScene3(svg, data) {
   )
 
   function forceCluster(alpha) {
-    for (var i = 0, n = nodes.length, node, cluster, k = alpha * 1; i < n; ++i) {
+    for (let i = 0, n = nodes.length, node, cluster, k = alpha * 1; i < n; ++i) {
       node = nodes[i]
       cluster = clusters[node.category]
       node.vx -= (node.x - cluster.x) * k
@@ -183,11 +256,14 @@ function drawScene3(svg, data) {
     )
 
   force.restart()
+  drawAnnotation('scene3')
 }
 
 function clearScene(svg, data) {
   svg.selectAll('g.axis').remove()
+  d3.selectAll('g.annotation-group').remove()
   if (force) force.stop()
+  d3.selectAll('circle.sun').remove()
 }
 
 function drawScene(svg, data, scene) {

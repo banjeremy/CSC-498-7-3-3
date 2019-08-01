@@ -75,3 +75,12 @@ circle:hover {
   margin: 0;
   padding: 0;
 }
+
+
+.annotation-note-content .annotation-note-bg {
+  fill-opacity: 0.1 !important;
+}
+
+.annotation-note-content .annotation-note-title {}
+
+.annotation-note-content .annotation-note-label {}

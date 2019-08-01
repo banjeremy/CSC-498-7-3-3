@@ -41,11 +41,4 @@ Colors mapped to temperature of star: https://courses.lumenlearning.com/astronom
 
 add axis labels
 add forward, back buttons
-add annotations
 
-scene1
-
-scene2
-
-scene 3
-retracted planets are planets that...
