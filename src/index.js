@@ -196,11 +196,21 @@ function drawScene2(svg, data) {
     .attr('transform', `translate(${margin},${height + margin})`)
     .call(xAxis)
 
-  // svg
-  //   .append('text')
-  //   .attr('transform', `translate(100,100)`)
-  //   .style('text-anchor', 'middle')
-  //   .text('Date')
+  svg
+    .append('text')
+    .attr('transform', `translate(${width / 2 + margin}, ${height + 2 * margin + 20})`)
+    .style('text-anchor', 'middle')
+    .attr('fill', '#606C76')
+    .classed('axis-label', true)
+    .text('Year Discovered')
+
+  svg
+    .append('text')
+    .attr('transform', `translate(-12, ${150}) rotate(-90)`)
+    .style('text-anchor', 'middle')
+    .attr('fill', '#606C76')
+    .classed('axis-label', true)
+    .text('Distance from Earth (ly)')
 
   const container = svg.select('g.container')
   const planets = container.selectAll('circle').data(data)
@@ -273,6 +283,7 @@ function drawScene3(svg, data) {
 
 function clearScene(svg, data) {
   svg.selectAll('g.axis').remove()
+  svg.selectAll('text.axis-label').remove()
   d3.selectAll('g.annotation-group').remove()
   if (force) force.stop()
   d3.selectAll('circle.sun').remove()

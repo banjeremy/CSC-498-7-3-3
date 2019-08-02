@@ -4,7 +4,6 @@
 
 Dataset is from the [Open Exoplanet Catalogue](https://github.com/hannorein/open_exoplanet_catalogue).
 
-
 | column index | column name                        | description                                                                                                                   |
 | ------------ | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | 1            | id                                 | Primary identifier of planet                                                                                                  |
@@ -33,12 +32,4 @@ Dataset is from the [Open Exoplanet Catalogue](https://github.com/hannorein/open
 | 24           | host_star_age                      | Host star age [Gyr]                                                                                                           |
 | 25           | lists                              | A list of lists the planet is on                                                                                              |
 
-
 Colors mapped to temperature of star: https://courses.lumenlearning.com/astronomy/chapter/colors-of-stars/
-
-
-## TODO: 
-
-add axis labels
-add forward, back buttons
-
