@@ -15,6 +15,7 @@ button {
   opacity: 0.6;
   margin: 2px;
   background: transparent;
+
 }
 
 button.active {
