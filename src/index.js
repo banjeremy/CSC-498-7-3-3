@@ -10,6 +10,8 @@ const height = 600 // window.innerHeight
 
 let force
 
+let currentScene = 1
+
 const categories = ['confirmed', 'controversial', 'retracted']
 
 const tooltip = d3
@@ -277,13 +279,21 @@ function clearScene(svg, data) {
 }
 
 function drawScene(svg, data, scene) {
+  if (!scene) {
+    scene = currentScene
+  } else {
+    currentScene = scene
+  }
   clearScene(svg)
+  d3.selectAll(`#controls #scenes button`).classed('active', false)
+  d3.selectAll(`#controls #scenes button:nth-child(${scene})`).classed('active', true)
+
   switch (scene) {
-    case 'scene1':
+    case 1:
       return drawScene1(svg, data)
-    case 'scene2':
+    case 2:
       return drawScene2(svg, data)
-    case 'scene3':
+    case 3:
       return drawScene3(svg, data)
     default:
       return drawScene1(svg, data)
@@ -324,21 +334,32 @@ function initLegend(svg) {
 }
 
 function initControls(svg, data) {
+  const scenes = [1, 2, 3]
   const controls = d3.select('#controls')
-  const buttons = controls.selectAll('button').data(['scene1', 'scene2', 'scene3'])
+
+  const buttons = controls
+    .select('#scenes')
+    .selectAll('button')
+    .data(scenes)
 
   buttons
     .enter()
     .append('button')
     .merge(buttons)
     .on('click', function handleClick(scene) {
-      controls.selectAll('button').classed('active', false)
-      d3.select(this).classed('active', true)
       drawScene(svg, data, scene)
     })
     .html((scene) => scene)
 
-  d3.select('button:first-child').classed('active', true)
+  d3.select('#back-button').on('click', () => {
+    currentScene = Math.max(currentScene - 1, 1)
+    drawScene(svg, data, currentScene)
+  })
+
+  d3.select('#forward-button').on('click', () => {
+    currentScene = Math.min(currentScene + 1, scenes.length)
+    drawScene(svg, data, currentScene)
+  })
 }
 
 function loadDataset() {
