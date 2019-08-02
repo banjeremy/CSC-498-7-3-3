@@ -77,12 +77,15 @@ circle:hover {
   padding: 0;
 }
 
+#controls {
+  margin-top: 3rem;
+}
+
+h1 {
+  margin-top: 2rem;
+}
 
 .annotation-note-content .annotation-note-bg {
   fill-opacity: 0.1 !important;
 }
-
-.annotation-note-content .annotation-note-title {}
-
-.annotation-note-content .annotation-note-label {}
 
