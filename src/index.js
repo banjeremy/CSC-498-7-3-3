@@ -76,10 +76,10 @@ const annotations = {
         bgPadding: 20,
         title: 'Not planets',
       },
-      x: 500,
-      y: 480,
+      x: 565,
+      y: 330,
       className: 'show-bg',
-      dy: -100,
+      dy: 100,
       dx: 200,
     },
   ],
@@ -228,10 +228,20 @@ function drawScene3(svg, data) {
     })
   })
 
-  const clusters = categories.reduce(
-    (a, b, i) => ({ ...a, [b]: { x: 200 + 100 * i, y: 200 + 100 * i } }),
-    {},
-  )
+  const clusters = {
+    confirmed: {
+      x: 300,
+      y: 300,
+    },
+    controversial: {
+      x: 200,
+      y: 300,
+    },
+    retracted: {
+      x: 400,
+      y: 300,
+    },
+  }
 
   function forceCluster(alpha) {
     for (let i = 0, n = nodes.length, node, cluster, k = alpha * 1; i < n; ++i) {
