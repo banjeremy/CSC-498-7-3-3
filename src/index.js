@@ -48,30 +48,16 @@ const annotations = {
       note: {
         label: 'Earth is here',
         bgPadding: 20,
-        title: 'Spacial view',
+        title: 'Spatial view',
       },
       x: width / 2 + margin,
       y: width / 2 + margin,
       className: 'show-bg',
       dy: 200,
-      dx: 300,
+      dx: -300,
     },
   ],
   scene2: [
-    {
-      note: {
-        label: 'Large number of distant planets discovered',
-        bgPadding: 20,
-        title: '2014',
-      },
-      x: 480,
-      y: 200,
-      className: 'show-bg',
-      dy: 80,
-      dx: -600,
-    },
-  ],
-  scene3: [
     {
       note: {
         label: 'A small number of exoplantets were retracted',
@@ -83,6 +69,20 @@ const annotations = {
       className: 'show-bg',
       dy: 100,
       dx: 200,
+    },
+  ],
+  scene3: [
+    {
+      note: {
+        label: 'Large number of distant planets discovered',
+        bgPadding: 20,
+        title: '2014',
+      },
+      x: 480,
+      y: 200,
+      className: 'show-bg',
+      dy: 80,
+      dx: -600,
     },
   ],
 }
@@ -165,6 +165,64 @@ function drawScene1(svg, data) {
 function drawScene2(svg, data) {
   if (!svg || !data) return
 
+  const container = svg.select('g.container')
+  const planets = container.selectAll('circle')
+
+  let nodes = []
+  planets.each(function(d) {
+    const el = d3.select(this)
+    nodes.push({
+      ...d,
+      category: d.category,
+      x: parseFloat(el.attr('cx')),
+      y: parseFloat(el.attr('cy')),
+    })
+  })
+
+  const clusters = {
+    confirmed: {
+      x: 300,
+      y: 300,
+    },
+    controversial: {
+      x: 200,
+      y: 300,
+    },
+    retracted: {
+      x: 400,
+      y: 300,
+    },
+  }
+
+  function forceCluster(alpha) {
+    for (let i = 0, n = nodes.length, node, cluster, k = alpha * 1; i < n; ++i) {
+      node = nodes[i]
+      cluster = clusters[node.category]
+      node.vx -= (node.x - cluster.x) * k
+      node.vy -= (node.y - cluster.y) * k
+    }
+  }
+
+  force = d3
+    .forceSimulation()
+    .nodes(nodes)
+    .force('cluster', forceCluster)
+    .force('gravity', d3.forceManyBody(1))
+    .velocityDecay(0.7)
+    .on('tick', () =>
+      planets
+        .data(nodes)
+        .attr('cx', (d) => d.x)
+        .attr('cy', (d) => d.y),
+    )
+
+  force.restart()
+  drawAnnotation('scene2')
+}
+
+function drawScene3(svg, data) {
+  if (!svg || !data) return
+
   let years = []
   for (let i = 2000; i <= 2018; i++) {
     years.push(String(i))
@@ -220,64 +278,6 @@ function drawScene2(svg, data) {
     .attr('cx', (d) => xScale(d.discovery_year) + xScale.bandwidth() / 2)
     .attr('cy', (d) => yScale(d.distance_from_sun))
 
-  drawAnnotation('scene2')
-}
-
-function drawScene3(svg, data) {
-  if (!svg || !data) return
-
-  const container = svg.select('g.container')
-  const planets = container.selectAll('circle')
-
-  let nodes = []
-  planets.each(function(d) {
-    const el = d3.select(this)
-    nodes.push({
-      ...d,
-      category: d.category,
-      x: parseFloat(el.attr('cx')),
-      y: parseFloat(el.attr('cy')),
-    })
-  })
-
-  const clusters = {
-    confirmed: {
-      x: 300,
-      y: 300,
-    },
-    controversial: {
-      x: 200,
-      y: 300,
-    },
-    retracted: {
-      x: 400,
-      y: 300,
-    },
-  }
-
-  function forceCluster(alpha) {
-    for (let i = 0, n = nodes.length, node, cluster, k = alpha * 1; i < n; ++i) {
-      node = nodes[i]
-      cluster = clusters[node.category]
-      node.vx -= (node.x - cluster.x) * k
-      node.vy -= (node.y - cluster.y) * k
-    }
-  }
-
-  force = d3
-    .forceSimulation()
-    .nodes(nodes)
-    .force('cluster', forceCluster)
-    .force('gravity', d3.forceManyBody(1))
-    .velocityDecay(0.7)
-    .on('tick', () =>
-      planets
-        .data(nodes)
-        .attr('cx', (d) => d.x)
-        .attr('cy', (d) => d.y),
-    )
-
-  force.restart()
   drawAnnotation('scene3')
 }
 

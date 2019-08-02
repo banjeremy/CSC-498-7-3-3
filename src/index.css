@@ -85,6 +85,10 @@ h1 {
   margin-top: 2rem;
 }
 
+h2 {
+  font-size: 18px;
+}
+
 .annotation-note-content .annotation-note-bg {
   fill-opacity: 0.1 !important;
 }
